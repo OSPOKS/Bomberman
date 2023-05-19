@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Snake Game</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.12.0/p5.min.js"></script>
+</head>
+<body>
+  <canvas id="canvas" width="640" height="480"></canvas>
+  <script>
+    // Create a canvas and context
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+
+    // Create the player
+    var player = {
+      x: 100,
+      y: 100,
+      width: 50,
+      height: 50,
+      direction: "right"
+    };
+
+    // Create the bombs
+    var bombs = [];
+
+    // Create the enemies
+    var enemies = [];
+
+    // Create the background
+    var background = new Image();
+    background.src = "background.png";
+    background.onload = function() {
+      ctx.drawImage(background, 0, 0);
+    };
+
+    // Create the font
+    var font = new Font("arial.ttf", 20);
+
+    // Create the text
+    var text = "Score: 0";
+    var score = 0;
+
+    // Create the game loop
+    var gameLoop = function() {
+      // Handle events
+      var events = p5.event.poll();
+      for (var i = 0; i < events.length; i++) {
+        if (events[i].type === "keydown") {
+          switch (events[i].keyCode) {
+            case 38: // up arrow
+              player.direction = "up";
+              break;
+            case 40: // down arrow
+              player.direction = "down";
+              break;
+            case 37: // left arrow
+              player.direction = "left";
+              break;
+            case 39: // right arrow
+              player.direction = "right";
+              break;
+          }
+        }
+      }
+
+      // Update the player
+      switch (player.direction) {
+        case "up":
+          player.y -= 5;
+          break;
+        case "down":
+          player.y += 5;
+          break;
+        case "left":
+          player.x -= 5;
+          break;
+        case "right":
+          player.x += 5;
+          break;
+      }
+
+      // Update the bombs
+      for (var i = 0; i < bombs.length; i++) {
+        bombs[i].update();
+        if (bombs[i].exploded) {
+          bombs.splice(i, 1);
+        }
+      }
+
+      // Update the enemies
+      for (var i = 0; i < enemies.length; i++) {
+        enemies[i].update();
+        if (enemies[i].collide(player)) {
+          gameOver();
+        }
+      }
+
+      // Draw the background
+      ctx.drawImage(background, 0, 0);
+
+      // Draw the player
+      ctx.fillStyle = "black";
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+
+      // Draw the bombs
+      for (var i = 0; i < bombs.length; i++) {
+        ctx.fillStyle = "red";
+        ctx.fillRect(bombs[i].x, bombs[i].y, bombs[i].width, bombs[i].height);
+      }
+
+      // Draw the enemies
+      for (var i = 0; i < enemies.length; i++) {
+        ctx.fillStyle = "green";
+        ctx.fillRect(enemies[i].x, enemies[i].y, enemies[i].width, enemies[i].height);
+      }
+
+      // Draw the text
+      ctx.fillStyle = "white";
+      ctx.font = font.name + " " + font.size + "px";
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+      // Request the next frame
+      requestAnimationFrame(gameLoop);
+
+
